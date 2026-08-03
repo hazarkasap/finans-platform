@@ -1,8 +1,20 @@
 # Finance Showcase
 
-Finance Showcase is a local, educational full-stack application for exploring shared-expense accounting and personal finance organization. It combines a Turkish-language interface with a Next.js/React frontend, typed route handlers, Auth.js sessions, Prisma, and PostgreSQL.
+Splitting a group expense is easy until several people pay, different split rules apply, and personal financial records must remain invisible to everyone else. Finance Showcase is a local, educational full-stack application built around those accounting and authorization boundaries.
+
+It combines a Turkish-language Next.js/React interface with typed route handlers, Auth.js sessions, Prisma, and PostgreSQL. The project demonstrates product development across UI, domain logic, relational modeling, security policy, and reproducible validation.
 
 All bundled demonstration users and financial records are intentionally fictional. This project is not financial advice, is not a banking product, and is not presented as production ready or as a live service.
+
+![Finance Showcase authentication screen](docs/screenshots/authentication.png)
+
+## Engineering focus
+
+- translating equal, exact, percentage, and share-based splits into testable domain rules;
+- enforcing ownership for personal resources and membership policy for group resources;
+- keeping monetary calculations deterministic and persistence-backed;
+- failing closed when production authentication configuration is incomplete;
+- validating the application against a real PostgreSQL service and browser flow in CI.
 
 ## Implemented features
 
@@ -31,6 +43,14 @@ flowchart LR
 ```
 
 See [Architecture](docs/ARCHITECTURE.md), [Security and privacy](docs/SECURITY_AND_PRIVACY.md), and [Limitations](docs/LIMITATIONS.md).
+
+### Key engineering decisions
+
+- **Authorization lives beside data access:** personal queries include the authenticated owner; group routes check membership before access.
+- **Debt calculation is isolated domain logic:** split validation and settlement matching are pure TypeScript functions with focused tests.
+- **Production-like configuration fails closed:** weak secrets and unsafe authentication URLs are rejected.
+- **Synthetic seeding is gated:** it requires an explicit non-production flag.
+- **The database is private by default:** Compose does not publish PostgreSQL outside its internal network.
 
 ## Requirements
 
@@ -81,6 +101,8 @@ bash scripts/scan_repository.sh
 ```
 
 Container startup and browser validation are exercised in CI using ephemeral synthetic data. The default Compose file does not publish PostgreSQL. `compose.dev.yaml` is an explicit local override that binds PostgreSQL to loopback only.
+
+The CI release path performs deterministic installation, Prisma migration, linting, 24 unit/integration tests, a production build, a Playwright registration-to-dashboard path, repository security scans, and a container health check.
 
 ## Authentication boundary
 
