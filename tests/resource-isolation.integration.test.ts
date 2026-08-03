@@ -34,6 +34,7 @@ describe.skipIf(!runDatabaseTests)("resource isolation", () => {
   });
 
   afterAll(async () => {
+    await prisma.group.deleteMany({ where: { id: groupId } });
     await prisma.user.deleteMany({ where: { email: { in: [ownerEmail, outsiderEmail] } } });
     await prisma.$disconnect();
   });

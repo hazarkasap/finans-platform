@@ -1,7 +1,7 @@
 FROM node:20.19.5-alpine3.22 AS dependencies
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 FROM node:20.19.5-alpine3.22 AS builder
 WORKDIR /app
