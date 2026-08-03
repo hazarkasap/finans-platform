@@ -40,6 +40,6 @@ jobs:
       - uses: actions/checkout@v4
         with: {fetch-depth: 0}
       - run: bash scripts/scan_repository.sh
-      - uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker://ghcr.io/gitleaks/gitleaks:v8.24.3
+        with:
+          args: detect --source=/github/workspace --no-git --redact --no-banner
