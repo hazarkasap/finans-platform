@@ -100,14 +100,14 @@ describe("computeGroupDebts", () => {
           paidByUserId: "demo_a",
           splits: [
             { userId: "demo_a", owedAmount: 90 },
-            { userId: "demo_b", owedAmount: 90 },
+            { userId: "demo_c", owedAmount: 90 },
             { userId: "demo_b", owedAmount: 90 },
           ],
         },
       ],
     );
     expect(netBalances.get("demo_a")).toBe(180);
-    expect(netBalances.get("demo_b")).toBe(-90);
+    expect(netBalances.get("demo_c")).toBe(-90);
     expect(netBalances.get("demo_b")).toBe(-90);
     expect(suggestedTransfers.length).toBeLessThanOrEqual(2);
   });
