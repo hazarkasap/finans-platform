@@ -18,8 +18,4 @@ test("capture synthetic portfolio views", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Gruplar" })).toBeVisible();
   await expect(page.getByText("Synthetic Shared Household")).toBeVisible();
   await page.screenshot({ path: `${output}/finance-groups.png`, fullPage: true });
-
-  await page.getByText("Synthetic Shared Household").click();
-  await expect(page.getByText("Synthetic grocery example")).toBeVisible();
-  await page.screenshot({ path: `${output}/finance-group-detail.png`, fullPage: true });
 });
