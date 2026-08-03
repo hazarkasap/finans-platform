@@ -11,7 +11,7 @@ test("capture synthetic portfolio views", async ({ page }) => {
   await page.getByLabel("Şifre").fill("local-demo-password");
   await page.getByRole("button", { name: "Giriş yap" }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
-  await expect(page.getByRole("heading", { name: "Özet" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Özet", exact: true })).toBeVisible();
   await page.screenshot({ path: `${output}/finance-dashboard.png`, fullPage: true });
 
   await page.goto("/groups");
