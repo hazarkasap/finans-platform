@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root,
+.light {
+  --background: #fafafa;
+  --foreground: #171717;
+  --card: #ffffff;
+  --muted: #f4f4f5;
+  --muted-foreground: #52525b;
+  --border: #e4e4e7;
+  --nav-hover: #f4f4f5;
+  --nav-active: #18181b;
+  --nav-active-foreground: #fafafa;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --card: #09090b;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --border: #27272a;
+  --nav-hover: #27272a;
+  --nav-active: #fafafa;
+  --nav-active-foreground: #18181b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+}
+
+/* Dokunmatik kaydırma */
+.overflow-touch {
+  -webkit-overflow-scrolling: touch;
+}

@@ -1,0 +1,45 @@
+name: Validate
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  application:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16.9-alpine
+        env:
+          POSTGRES_USER: demo
+          POSTGRES_PASSWORD: test-only-password
+          POSTGRES_DB: finance_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U demo -d finance_test"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      DATABASE_URL: postgresql://demo:test-only-password@127.0.0.1:5432/finance_test
+      AUTH_URL: http://127.0.0.1:3000
+      AUTH_SECRET: test-only-auth-value-with-at-least-thirty-two-characters
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 20, cache: npm}
+      - run: npm ci
+      - run: npm run db:generate
+      - run: npx prisma migrate deploy
+      - run: npm run lint
+      - run: RUN_DATABASE_TESTS=true npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - run: bash scripts/scan_repository.sh
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

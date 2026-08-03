@@ -1,0 +1,260 @@
+// Kişisel + Ortak Finans — Phase 1 şema
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MembershipRole {
+  OWNER
+  MEMBER
+}
+
+enum AccountType {
+  CASH
+  BANK
+  INVESTMENT
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum BillStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+enum SplitType {
+  EQUAL
+  EXACT
+  PERCENTAGE
+  SHARES
+}
+
+enum ExpenseCategory {
+  MARKET
+  FOOD
+  RENT
+  UTILITIES
+  TRANSPORT
+  ENTERTAINMENT
+  HEALTH
+  TRAVEL
+  OTHER
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String?
+  displayName  String?
+  locale       String   @default("tr")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships       Membership[]
+  expensesPaid      Expense[]         @relation("ExpensePaidBy")
+  expensePayments   ExpensePayment[]
+  expenseSplits     ExpenseSplit[]
+  settlementsFrom   Settlement[]      @relation("SettlementFrom")
+  settlementsTo     Settlement[]      @relation("SettlementTo")
+  personalAccounts  PersonalAccount[]
+  bills             Bill[]
+  groupsCreated     Group[]           @relation("GroupCreatedBy")
+
+  accounts Account[]
+  sessions Session[]
+}
+
+// Auth.js (NextAuth v5) tabloları
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Group {
+  id              String   @id @default(cuid())
+  name            String
+  defaultCurrency String   @default("TRY")
+  createdById     String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  createdBy   User         @relation("GroupCreatedBy", fields: [createdById], references: [id])
+  memberships Membership[]
+  expenses    Expense[]
+  settlements Settlement[]
+  bills       Bill[]
+}
+
+model Membership {
+  id        String         @id @default(cuid())
+  userId    String
+  groupId   String
+  role      MembershipRole @default(MEMBER)
+  joinedAt  DateTime       @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+  @@index([groupId])
+}
+
+model Expense {
+  id            String    @id @default(cuid())
+  groupId       String
+  paidByUserId  String
+  totalAmount   Decimal   @db.Decimal(12, 2)
+  currency      String    @default("TRY")
+  date          DateTime  @db.Date
+  description   String?
+  category      ExpenseCategory @default(OTHER)
+  splitType     SplitType @default(EQUAL)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  group    Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  paidBy   User             @relation("ExpensePaidBy", fields: [paidByUserId], references: [id])
+  payments ExpensePayment[]
+  splits   ExpenseSplit[]
+
+  @@index([groupId, date])
+}
+
+model ExpensePayment {
+  id         String  @id @default(cuid())
+  expenseId  String
+  userId     String
+  paidAmount Decimal @db.Decimal(12, 2)
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([expenseId, userId])
+  @@index([expenseId])
+}
+
+model ExpenseSplit {
+  id          String  @id @default(cuid())
+  expenseId   String
+  userId      String
+  owedAmount  Decimal @db.Decimal(12, 2)
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([expenseId, userId])
+}
+
+model Settlement {
+  id           String   @id @default(cuid())
+  groupId      String
+  fromUserId   String
+  toUserId     String
+  amount       Decimal  @db.Decimal(12, 2)
+  currency     String   @default("TRY")
+  date         DateTime @db.Date
+  note         String?
+  createdAt    DateTime @default(now())
+
+  group    Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  fromUser User  @relation("SettlementFrom", fields: [fromUserId], references: [id])
+  toUser   User  @relation("SettlementTo", fields: [toUserId], references: [id])
+
+  @@index([groupId])
+}
+
+model PersonalAccount {
+  id             String      @id @default(cuid())
+  userId         String
+  name           String
+  type           AccountType
+  currency       String      @default("TRY")
+  initialBalance Decimal     @default(0) @db.Decimal(12, 2)
+  archivedAt     DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@index([userId])
+}
+
+model Transaction {
+  id                     String          @id @default(cuid())
+  accountId              String
+  amount                 Decimal         @db.Decimal(12, 2)
+  type                   TransactionType
+  date                   DateTime        @db.Date
+  description            String?
+  counterpartyAccountId  String?
+  createdAt              DateTime        @default(now())
+
+  account PersonalAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  bill    Bill?
+
+  @@index([accountId, date])
+}
+
+model Bill {
+  id                   String     @id @default(cuid())
+  userId               String
+  groupId              String?
+  title                String
+  amount               Decimal    @db.Decimal(12, 2)
+  currency             String     @default("TRY")
+  dueDate              DateTime   @db.Date
+  status               BillStatus @default(PENDING)
+  paidAt               DateTime?
+  linkedTransactionId  String?    @unique
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group             Group?       @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  linkedTransaction Transaction? @relation(fields: [linkedTransactionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, dueDate])
+  @@index([status])
+}

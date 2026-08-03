@@ -1,0 +1,23 @@
+name: Container smoke
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cp .env.example .env
+      - run: sed -i 's#REPLACE_WITH_LOCAL_PASSWORD#container-test-password#g; s#REPLACE_WITH_OUTPUT_FROM_OPENSSL_RAND_BASE64_32#container-test-auth-value-with-at-least-thirty-two-characters#g; s#http://127.0.0.1:3000#https://127.0.0.1:3000#g' .env
+      - run: docker compose up -d --build
+      - run: |
+          for attempt in {1..30}; do
+            curl --fail http://127.0.0.1:3000/api/health && exit 0
+            sleep 2
+          done
+          docker compose logs
+          exit 1
+      - if: always()
+        run: docker compose down --volumes

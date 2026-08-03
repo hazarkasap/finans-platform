@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "dataset": "synthetic local demonstration records",
+  "created_for_repository": true,
+  "contains_real_user_data": false,
+  "contains_financial_advice": false,
+  "third_party_content": false
+}
