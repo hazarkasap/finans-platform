@@ -1,20 +1,24 @@
-# Finance Showcase
+# Finans Platform
 
-Splitting a group expense is easy until several people pay, different split rules apply, and personal financial records must remain invisible to everyone else. Finance Showcase is a local, educational full-stack application built around those accounting and authorization boundaries.
+Splitting a group expense is easy until several people pay, different split rules apply, and personal financial records must remain invisible to everyone else. Finans Platform is a local, educational full-stack application built around those accounting and authorization boundaries.
 
 It combines a Turkish-language Next.js/React interface with typed route handlers, Auth.js sessions, Prisma, and PostgreSQL. The project demonstrates product development across UI, domain logic, relational modeling, security policy, and reproducible validation.
 
 All bundled demonstration users and financial records are intentionally fictional. This project is not financial advice, is not a banking product, and is not presented as production ready or as a live service.
 
-![Finance Showcase dashboard populated with fictional balances, a shared group, and a synthetic bill](docs/screenshots/finance-dashboard.png)
+![Finans Platform dashboard presenting the complete financial overview](docs/screenshots/finance-dashboard.png)
 
-### Interface preview
+## Interface preview
 
-| Shared groups | Authentication |
+| Transactions | Accounts |
 |---|---|
-| ![Synthetic shared household containing two demo users and one expense](docs/screenshots/finance-groups.png) | ![Finance Showcase authentication screen](docs/screenshots/authentication.png) |
+| ![Transaction workspace with filters, categories, and account activity](docs/screenshots/finance-transactions.png) | ![Account workspace and portfolio summary](docs/screenshots/finance-accounts.png) |
 
-Every value and identity shown above comes from the guarded synthetic seed.
+| Bills | Shared groups |
+|---|---|
+| ![Bill tracking, status summaries, and payment controls](docs/screenshots/finance-bills.png) | ![Shared expense balances and settlement controls](docs/screenshots/finance-groups.png) |
+
+The approved presentation captures use demonstration identities and fictional financial values.
 
 ## Engineering focus
 
@@ -111,6 +115,10 @@ bash scripts/scan_repository.sh
 Container startup and browser validation are exercised in CI using ephemeral synthetic data. The default Compose file does not publish PostgreSQL. `compose.dev.yaml` is an explicit local override that binds PostgreSQL to loopback only.
 
 The CI release path performs deterministic installation, Prisma migration, linting, 24 unit/integration tests, a production build, a Playwright registration-to-dashboard path, repository security scans, and a container health check.
+
+## Reviewer takeaway
+
+Finans Platform demonstrates end-to-end product ownership: a responsive interface, typed server boundaries, relational data modeling, deterministic accounting rules, user/group authorization, database-backed isolation tests, and reproducible container validation.
 
 ## Authentication boundary
 
