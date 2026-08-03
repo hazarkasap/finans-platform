@@ -6,7 +6,7 @@ export default defineConfig({
   expect: { timeout: 15_000 },
   use: { baseURL: "http://127.0.0.1:3000", trace: "retain-on-failure" },
   webServer: {
-    command: "npm run start",
+    command: "npx next start",
     url: "http://127.0.0.1:3000/api/health",
     reuseExistingServer: false,
     timeout: 120_000,
