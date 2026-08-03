@@ -6,7 +6,15 @@ It combines a Turkish-language Next.js/React interface with typed route handlers
 
 All bundled demonstration users and financial records are intentionally fictional. This project is not financial advice, is not a banking product, and is not presented as production ready or as a live service.
 
-![Finance Showcase authentication screen](docs/screenshots/authentication.png)
+![Finance Showcase dashboard populated with fictional balances, a shared group, and a synthetic bill](docs/screenshots/finance-dashboard.png)
+
+### Interface preview
+
+| Shared groups | Authentication |
+|---|---|
+| ![Synthetic shared household containing two demo users and one expense](docs/screenshots/finance-groups.png) | ![Finance Showcase authentication screen](docs/screenshots/authentication.png) |
+
+Every value and identity shown above comes from the guarded synthetic seed.
 
 ## Engineering focus
 
